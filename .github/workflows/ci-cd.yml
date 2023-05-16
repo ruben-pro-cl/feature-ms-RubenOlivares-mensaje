@@ -38,6 +38,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+    - name: List build/libs contents
+      run: ls -l build/libs/
     - name: Checkout code
       uses: actions/checkout@v2
       
