@@ -32,4 +32,4 @@ jobs:
         path: '**/build/reports/tests/test/index.html'
 
     - name: Code Quality and Security
-      run: ./gradlew sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      run: ./gradlew sonarqube -Dsonar.projectKey=ruben-pro-cl_feature-ms-RubenOlivares-mensaje -Dsonar.organization=ruben-pro-cl -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
