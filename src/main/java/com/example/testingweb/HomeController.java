@@ -9,6 +9,7 @@ public class HomeController {
 
 	@RequestMapping("/")
 	public @ResponseBody String greeting() {
+		String unusedVariable = "Esto es una variable no usada";
 		return "Hello, World";
 	}
 
