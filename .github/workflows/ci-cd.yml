@@ -1,9 +1,8 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: 
-      - 'feature-ms-*'
+  [workflow_dispatch, push]
+concurrency: ci-${{ github.ref }}
 
 jobs:
   build:
