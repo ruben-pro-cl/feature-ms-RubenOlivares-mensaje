@@ -44,5 +44,6 @@ sonarqube {
     property "sonar.projectKey", "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"
     property "sonar.organization", "ruben-pro-cl"
     property "sonar.host.url", "https://sonarcloud.io"
+	property "sonar.login", System.getenv("SONAR_TOKEN")
   }
 }
