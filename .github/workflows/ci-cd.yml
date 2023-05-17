@@ -19,6 +19,13 @@ jobs:
         java-version: '11'
         distribution: 'zulu'
 
+      name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
@@ -37,3 +44,9 @@ jobs:
         sonarProjectKey: "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"
         sonarOrganization: "ruben-pro-cl"
         sonarToken: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: ./gradlew build sonarqube --info
