@@ -41,5 +41,8 @@ sonarqube {
     property "sonar.projectKey", "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"
     property "sonar.organization", "ruben-pro-cl"
     property "sonar.host.url", "https://sonarcloud.io"
+    property "sonar.java.coveragePlugin", "jacoco"
+    property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+    property "sonar.sources", "src/main/java"
   }
 }
