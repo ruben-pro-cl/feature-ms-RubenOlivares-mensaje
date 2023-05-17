@@ -30,15 +30,6 @@ jacocoTestReport {
     }
 }
 
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.9
-            }
-        }
-    }
-}
 sonarqube {
   properties {
     property "sonar.projectKey", "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"

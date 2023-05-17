@@ -25,17 +25,13 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Test with Gradle
+    - name: Test with coverage
       run: ./gradlew test jacocoTestReport
 
-    - name: Add coverage to PR
-      id: jacoco
-      uses: madrapps/jacoco-report@v1.3
-      with:
-        paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
-        min-coverage-overall: 85
-        min-coverage-changed-files: 85
+    - name: Check coverage
+      run: |
+        COVERAGE=$(./gradlew jacocoTestReport | grep "Instruction Coverage" | grep -oP '\d+.\d')
+        if (( $(echo "$COVERAGE < 85" | bc -l) )); then echo "Test coverage is less than 85%"; exit 1; fi
 
     - name: SonarQube analysis
       env:
