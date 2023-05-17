@@ -25,15 +25,11 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Test with coverage
+    - name: Test with Gradle and generate a coverage report
       run: ./gradlew test jacocoTestReport
 
-    - name: Check coverage
-      run: |
-        ./gradlew jacocoTestReport
-        cat build/reports/jacoco/test/html/index.html # Imprimir el contenido del informe de cobertura
-        COVERAGE=$(grep "Instruction Coverage" build/reports/jacoco/test/html/index.html | grep -oP '\d+.\d')
-        if (( $(echo "$COVERAGE < 50" | bc -l) )); then echo "Test coverage is less than 50%"; exit 1; fi
+    - name: Check coverage with Gradle
+      run: ./gradlew jacocoTestCoverageVerification
 
     - name: SonarQube analysis
       env:

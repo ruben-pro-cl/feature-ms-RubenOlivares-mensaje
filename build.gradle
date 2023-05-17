@@ -22,11 +22,13 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
-jacocoTestReport {
-    reports {
-        xml.enabled = true
-        csv.enabled = false
-        html.destination file("${buildDir}/reports/jacoco/html")  // Ajustar la ubicación del informe
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.85
+            }
+        }
     }
 }
 
