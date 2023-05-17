@@ -33,8 +33,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Test with coverage
-      run: ./gradlew test jacocoTestReport
+    - name: Test with JaCoCo
+      run: ./gradlew jacocoTestCoverageVerification
 
     - name: Check coverage
       run: |
