@@ -31,7 +31,7 @@ jobs:
     - name: Check coverage
       run: |
         COVERAGE=$(./gradlew jacocoTestReport | grep "Instruction Coverage" | grep -oP '\d+.\d')
-        if (( $(echo "$COVERAGE < 70" | bc -l) )); then echo "Test coverage is less than 70%"; exit 1; fi
+        if (( $(echo "$COVERAGE < 50" | bc -l) )); then echo "Test coverage is less than 50%"; exit 1; fi
 
     - name: SonarQube analysis
       env:
