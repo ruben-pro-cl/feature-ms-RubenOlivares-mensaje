@@ -29,6 +29,21 @@ jacocoTestReport {
         csv.enabled = false
         html.destination file("${buildDir}/jacocoHtml")
     }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                     exclude: ['**/package/to/exclude/**'])  // excluir ciertos archivos o paquetes
+        }))
+    }
+
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.5  // establecer el umbral mínimo al 50%
+            }
+        }
+    }
 }
 sonarqube {
   properties {
