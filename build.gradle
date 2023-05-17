@@ -29,7 +29,9 @@ jacocoTestReport {
         csv.enabled = false
         html.destination file("${buildDir}/jacocoHtml")
     }
+}
 
+jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
