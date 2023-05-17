@@ -31,7 +31,9 @@ jobs:
     - name: Check coverage with Gradle
       run: ./gradlew jacocoTestCoverageVerification
 
-    - name: SonarQube analysis
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: ./gradlew sonar
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      with:
+        sonarProjectKey: "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"
+        sonarOrganization: "ruben-pro-cl"
+        sonarToken: ${{ secrets.SONAR_TOKEN }}
