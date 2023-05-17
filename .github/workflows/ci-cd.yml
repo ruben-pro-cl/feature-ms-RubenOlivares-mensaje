@@ -53,9 +53,6 @@ jobs:
         name: build-artifacts
         path: build/libs/
 
-    - name: List build/libs contents
-      run: ls -l build/libs/
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
       
@@ -69,3 +66,11 @@ jobs:
     - name: Run Docker Container
       run: |
             docker run -d -p 8080:8080 trabajo-final:latest
+    - name: Test HTTP response
+      run: |
+        # Start the application in the background
+        ./gradlew bootRun &
+        # Wait for the application to start
+        sleep 30
+        # Make a request to the application and print the response
+        curl http://localhost:8080/
