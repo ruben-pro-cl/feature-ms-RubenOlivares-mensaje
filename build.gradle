@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'  // Añadir el plugin de JaCoCo
 	id "org.sonarqube" version "3.5.0.2730"
 }
 
@@ -20,8 +21,15 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	finalizedBy 'jacocoTestReport'  // Asegurar que jacocoTestReport se ejecute después de las pruebas
 }
-
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        csv.enabled = false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
 sonarqube {
   properties {
     property "sonar.projectKey", "ruben-pro-cl_feature-ms-RubenOlivares-mensaje"
