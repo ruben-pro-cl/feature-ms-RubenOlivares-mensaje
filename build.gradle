@@ -21,7 +21,6 @@ dependencies {
 
 test {
 	useJUnitPlatform()
-	finalizedBy 'jacocoTestReport'  // Asegurar que jacocoTestReport se ejecute después de las pruebas
 }
 jacocoTestReport {
     reports {
@@ -35,7 +34,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.5
+                minimum = 0.7
             }
         }
     }
