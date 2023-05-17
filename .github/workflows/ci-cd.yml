@@ -38,4 +38,6 @@ jobs:
         min-coverage-changed-files: 70
 
     - name: SonarQube analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: ./gradlew sonar
