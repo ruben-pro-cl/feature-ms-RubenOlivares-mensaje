@@ -53,4 +53,12 @@ jobs:
       run: npm install puppeteer
 
     - name: Take screenshot
-      run: node puppeteer/screenshot.js
+      run: |
+        mkdir puppeteer
+        node puppeteer/screenshot.js
+    - name: Upload Screenshot
+      uses: actions/upload-artifact@v2
+      with:
+        name: screenshot
+        path: puppeteer/screenshot.png
+      
