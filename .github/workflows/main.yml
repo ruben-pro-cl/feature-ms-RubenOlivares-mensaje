@@ -1,0 +1,145 @@
+name: CI/CD Pipeline
+
+on:
+  [workflow_dispatch, push]
+
+concurrency: ci-${{ github.ref }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'zulu'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Test with Gradle and generate a coverage report
+      run: ./gradlew test jacocoTestReport
+
+    - name: Check coverage with Gradle
+      run: ./gradlew jacocoTestCoverageVerification
+
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle
+
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        OUTPUT=$(./gradlew build jacocoTestReport sonarqube --info)
+        echo "$OUTPUT"
+        CE_TASK_ID=$(echo "$OUTPUT" | grep "More about the report processing at" | awk -F'=' '{print $2}')
+        echo "CE_TASK_ID=$CE_TASK_ID" >> $GITHUB_ENV
+
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
+    - name: Check Quality Gate
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        ATTEMPTS=0
+        while [ "$ATTEMPTS" -lt 10 ]; do
+          sleep 5
+          TASK_RESPONSE=$(curl -u $SONAR_TOKEN: https://sonarcloud.io/api/ce/task?id=${{ env.CE_TASK_ID }})
+          echo "Task Response: $TASK_RESPONSE"
+          ANALYSIS_ID=$(echo $TASK_RESPONSE | jq -r .task.analysisId)
+          if [ -n "$ANALYSIS_ID" ]; then
+            QG_RESPONSE=$(curl -u $SONAR_TOKEN: https://sonarcloud.io/api/qualitygates/project_status?analysisId=${ANALYSIS_ID})
+            echo "QG Response: $QG_RESPONSE"
+            QG_STATUS=$(echo $QG_RESPONSE | jq -r .projectStatus.status)
+            if [ "$QG_STATUS" = "ERROR" ]; then
+              echo "Quality Gate check failed"
+              exit 1
+            elif [ "$QG_STATUS" = "OK" ]; then
+              echo "Quality Gate passed"
+              exit 0
+            fi
+          fi
+          ATTEMPTS=$((ATTEMPTS + 1))
+        done
+        echo "Quality Gate status could not be determined"
+        exit 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: false
+        tags: my-app:latest
+
+    - name: Run Docker container
+      run: |
+        docker run -d -p 8080:8080 --name my-app my-app:latest
+
+    - name: Run JMeter tests
+      run: |
+        docker run --network host -v ${PWD}/jmeter:/jmeter -w /jmeter justb4/jmeter:latest -n -t ./test-plan.jmx -l results.csv
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: jmeter-results
+        path: ./jmeter/results.csv
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.4.0
+      with:
+        node-version: '16'
+
+    - name: Install Puppeteer    
+      run: npm install puppeteer
+
+    - name: Take screenshot
+      run: |
+        node puppeteer/screenshot.js
+
+    - name: Upload Screenshot
+      uses: actions/upload-artifact@v2
+      with:
+        name: screenshot
+        path: puppeteer/screenshot.png
