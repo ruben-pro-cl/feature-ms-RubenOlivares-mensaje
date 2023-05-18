@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class HomeController {
 
 	@RequestMapping("/")
-	public @ResponseBody String greeting() {
-		String unusedVariable = "Esto es una variable no usada";
+	public @ResponseBody String greeting() {		
 		return "Hello, World";
 	}
 
