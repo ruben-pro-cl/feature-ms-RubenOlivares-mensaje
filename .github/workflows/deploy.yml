@@ -54,7 +54,6 @@ jobs:
 
     - name: Take screenshot
       run: |
-        mkdir puppeteer
         node puppeteer/screenshot.js
     - name: Upload Screenshot
       uses: actions/upload-artifact@v2
