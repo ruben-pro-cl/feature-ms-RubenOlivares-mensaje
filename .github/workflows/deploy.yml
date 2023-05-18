@@ -37,7 +37,7 @@ jobs:
 
     - name: Run JMeter tests
       run: |
-        docker run --network host -v ${PWD}/jmeter:/jmeter -w /jmeter justb4/jmeter:latest -n -t ./test-plan.jmx
+        docker run --network host -v ${PWD}/jmeter:/jmeter -w /jmeter justb4/jmeter:latest -n -t ./test-plan.jmx -l test-results.csv
     - name: Upload test results
       uses: actions/upload-artifact@v2
       with:
