@@ -43,14 +43,17 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           QG_STATUS=""
-          while [ "$QG_STATUS" != "OK" ] && [ "$QG_STATUS" != "ERROR" ]; do
+          ATTEMPTS=0
+          while [ "$QG_STATUS" != "OK" ] && [ "$QG_STATUS" != "ERROR" ] && [ "$ATTEMPTS" -lt 10 ]; do
             sleep 5
             RESPONSE=$(curl -u $SONAR_TOKEN: https://sonarcloud.io/api/ce/task?id=${{ env.CE_TASK_ID }})
+            echo "Response: $RESPONSE"
             QG_STATUS=$(echo $RESPONSE | jq -r .task.status)
             if [ "$QG_STATUS" = "FAILED" ]; then
               echo "Quality Gate check failed"
               exit 1
             fi
+            ATTEMPTS=$((ATTEMPTS + 1))
           done
           if [ "$QG_STATUS" != "OK" ]; then
             echo "Quality Gate did not pass"
