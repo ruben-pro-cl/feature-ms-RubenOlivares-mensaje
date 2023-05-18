@@ -33,7 +33,7 @@ jobs:
 
     - name: Run Docker container
       run: |
-        docker run -d --name my-app my-app:latest
+        docker run -d -p 8080:8080 --name my-app my-app:latest
 
     - name: Run JMeter tests
       run: |
