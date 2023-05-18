@@ -31,4 +31,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build jacocoTestReport sonarqube --info
+        run: |
+          OUTPUT=$(./gradlew build jacocoTestReport sonarqube --info)
+          echo "$OUTPUT"
+          CE_TASK_ID=$(echo "$OUTPUT" | grep "More about the report processing at" | awk -F'=' '{print $2}')
+          echo "CE_TASK_ID=$CE_TASK_ID" >> $GITHUB_ENV
+      - name: Install jq
+        run: sudo apt-get install -y jq
+      - name: Check Quality Gate
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          QG_STATUS=""
+          while [ "$QG_STATUS" != "OK" ] && [ "$QG_STATUS" != "ERROR" ]; do
+            sleep 5
+            RESPONSE=$(curl -u $SONAR_TOKEN: https://sonarcloud.io/api/ce/task?id=${{ env.CE_TASK_ID }})
+            QG_STATUS=$(echo $RESPONSE | jq -r .task.status)
+            if [ "$QG_STATUS" = "FAILED" ]; then
+              echo "Quality Gate check failed"
+              exit 1
+            fi
+          done
+          if [ "$QG_STATUS" != "OK" ]; then
+            echo "Quality Gate did not pass"
+            exit 1
+          fi
